@@ -43,6 +43,15 @@ export async function loginWithOAuth2(providerName: string) {
   await usersApi.authWithOAuth2({ provider: providerName });
 }
 
+export async function changePassword(
+  oldPassword: string,
+  password: string,
+  passwordConfirm: string,
+) {
+  const id = pb.authStore.record!.id;
+  await usersApi.update(id, { oldPassword, password, passwordConfirm });
+}
+
 export function logout() {
   pb.authStore.clear();
 }

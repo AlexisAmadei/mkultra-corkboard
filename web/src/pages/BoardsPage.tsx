@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Download, Loader2, LogOut, Plus, Settings2, Upload } from "lucide-react";
+import { Download, Loader2, LogOut, Plus, Settings2, User, Upload } from "lucide-react";
 import { boardsApi, recordToBoard } from "../lib/pocketbase";
 import { logout } from "../lib/auth";
 import { exportBoard, importBoard } from "../lib/boardExport";
 import { useAuth } from "../store/authStore";
 import type { Board } from "../types";
 import { BoardSettings } from "../components/BoardSettings";
+import { AccountSettings } from "../components/AccountSettings";
 import pinImage from "../assets/pin.png";
 
 /** Deterministic small tilt per board id, so notes look scattered but stable across renders. */
@@ -76,6 +77,7 @@ export function BoardsPage() {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [settingsFor, setSettingsFor] = useState<Board | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -144,6 +146,10 @@ export function BoardsPage() {
           hidden
           onChange={(e) => void handleImportFile(e)}
         />
+        <button type="button" title="Account" onClick={() => setAccountOpen(true)}>
+          <User size={14} />
+          Account
+        </button>
         <button type="button" onClick={() => void logout()}>
           <LogOut size={14} />
           Log out
@@ -231,6 +237,8 @@ export function BoardsPage() {
           onChange={reload}
         />
       )}
+
+      {accountOpen && <AccountSettings onClose={() => setAccountOpen(false)} />}
     </div>
   );
 }
