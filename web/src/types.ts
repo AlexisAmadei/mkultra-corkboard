@@ -26,6 +26,7 @@ export interface Card {
   z: number;
   /** Presentation sequence position (1..X); 0 means unassigned. */
   order: number;
+  board: string;
 }
 
 export interface Connection {
@@ -34,7 +35,28 @@ export interface Connection {
   toCard: string;
   color: string;
   label: string;
+  board: string;
 }
 
 /** A card that has not yet been persisted (no id, server fills defaults). */
 export type NewCard = Omit<Card, "id">;
+
+export type Visibility = "private" | "public";
+
+export interface Board {
+  id: string;
+  name: string;
+  owner: string;
+  visibility: Visibility;
+  created: string;
+}
+
+export interface BoardCollaborator {
+  id: string;
+  board: string;
+  user: string;
+  expand?: { user?: { id: string; email?: string; name?: string } };
+}
+
+/** The current viewer's relationship to the open board, driving read-only UI. */
+export type BoardRole = "owner" | "collaborator" | "viewer";

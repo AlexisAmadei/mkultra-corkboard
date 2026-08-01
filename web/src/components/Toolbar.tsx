@@ -8,6 +8,7 @@ import type { CardType } from "../types";
 export function Toolbar() {
   const mode = useBoard((s) => s.mode);
   const ordering = useBoard((s) => s.ordering);
+  const canEdit = useBoard((s) => s.canEdit);
   const canUndo = useBoard((s) => s.past.length > 0);
   const canRedo = useBoard((s) => s.future.length > 0);
   const presentStep = useBoard((s) => s.presentStep);
@@ -52,7 +53,7 @@ export function Toolbar() {
 
   return (
     <div className="toolbar">
-      <span className="brand">PROJET MK-ULTRA</span>
+      <a className="brand" href="/boards">PROJET MK-ULTRA</a>
       <div className="mode-toggle">
         <button
           className={mode === "view" ? "active" : ""}
@@ -60,12 +61,14 @@ export function Toolbar() {
         >
           View
         </button>
-        <button
-          className={mode === "edit" ? "active" : ""}
-          onClick={() => useBoard.getState().setMode("edit")}
-        >
-          Edit
-        </button>
+        {canEdit && (
+          <button
+            className={mode === "edit" ? "active" : ""}
+            onClick={() => useBoard.getState().setMode("edit")}
+          >
+            Edit
+          </button>
+        )}
         <button
           className={mode === "present" ? "active" : ""}
           onClick={() => useBoard.getState().setMode("present")}
@@ -74,7 +77,7 @@ export function Toolbar() {
         </button>
       </div>
 
-      {mode === "edit" && (
+      {mode === "edit" && canEdit && (
         <>
           <span className="sep" />
           <button onClick={() => addCard("text")} title="Add index card">＋ Note</button>
@@ -93,7 +96,7 @@ export function Toolbar() {
         </>
       )}
 
-      {mode === "edit" && (
+      {mode === "edit" && canEdit && (
         <>
           <span className="sep" />
           <button

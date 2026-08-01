@@ -1,13 +1,13 @@
 import PocketBase, { type RecordModel } from "pocketbase";
-import type { Card, Connection } from "../types";
+import type { Board, BoardCollaborator, Card, Connection } from "../types";
 
 /**
  * PocketBase client singleton. In dev, Vite proxies `/api` -> :8090 (see
- * vite.config.ts), so a relative base URL works from any host.
+ * vite.config.ts), so a relative base URL works from any host. The SDK
+ * persists the auth session (pb.authStore) to localStorage automatically.
  */
 export const pb = new PocketBase(import.meta.env.VITE_PB_URL ?? "/");
 
-// Local tool: keep long-lived, unauthenticated access simple.
 pb.autoCancellation(false);
 
 const CARD_FIELDS = [
@@ -45,6 +45,7 @@ export function recordToCard(r: RecordModel): Card {
     color: r.color ?? "",
     z: Number(r.z ?? 0),
     order: Number(r.order ?? 0),
+    board: r.board ?? "",
   };
 }
 
@@ -55,6 +56,26 @@ export function recordToConnection(r: RecordModel): Connection {
     toCard: r.toCard ?? "",
     color: r.color ?? "#b81d13",
     label: r.label ?? "",
+    board: r.board ?? "",
+  };
+}
+
+export function recordToBoard(r: RecordModel): Board {
+  return {
+    id: r.id,
+    name: r.name ?? "",
+    owner: r.owner ?? "",
+    visibility: r.visibility === "public" ? "public" : "private",
+    created: r.created ?? "",
+  };
+}
+
+export function recordToCollaborator(r: RecordModel): BoardCollaborator {
+  return {
+    id: r.id,
+    board: r.board ?? "",
+    user: r.user ?? "",
+    expand: r.expand as BoardCollaborator["expand"],
   };
 }
 
@@ -69,4 +90,7 @@ export function fileUrl(cardId: string, filename: string): string {
 
 export const cardsApi = pb.collection("cards");
 export const connectionsApi = pb.collection("connections");
+export const boardsApi = pb.collection("boards");
+export const collaboratorsApi = pb.collection("board_collaborators");
+export const usersApi = pb.collection("users");
 export { CARD_FIELDS };

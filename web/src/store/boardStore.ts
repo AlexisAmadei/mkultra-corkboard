@@ -4,6 +4,7 @@ import type { Card, CardType, Connection, Mode, Transform, Vec2 } from "../types
 import {
   cardsApi,
   connectionsApi,
+  pb,
   recordToCard,
   recordToConnection,
 } from "../lib/pocketbase";
@@ -66,6 +67,7 @@ function cardPayload(c: Card) {
     color: c.color,
     z: c.z,
     order: c.order,
+    board: c.board,
   };
 }
 
@@ -90,6 +92,7 @@ function defaultsFor(
     color: type === "sticky" ? STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)] : DEFAULT_COLOR[type],
     z: Date.now(),
     order: 0,
+    board: "",
   };
 }
 
@@ -112,6 +115,10 @@ interface BoardState {
   presentStep: number;
   loaded: boolean;
   error: string | null;
+  /** The currently open board (set by `load`). */
+  boardId: string | null;
+  /** Whether the viewer may create/edit/delete on this board (owner or collaborator). */
+  canEdit: boolean;
 
   /** Undo history: performed actions (oldest first). */
   past: Command[];
@@ -125,8 +132,9 @@ interface BoardState {
   select: (id: string | null) => void;
   setOrdering: (on: boolean) => void;
   setPresentStep: (step: number) => void;
+  setCanEdit: (canEdit: boolean) => void;
 
-  load: () => Promise<void>;
+  load: (boardId: string) => Promise<void>;
 
   addCard: (
     type: CardType,
@@ -213,6 +221,7 @@ export const useBoard = create<BoardState>()(
           toCard: conn.toCard,
           color: conn.color,
           label: conn.label,
+          board: conn.board,
         });
       } catch (e) {
         set({ error: (e as Error).message });
@@ -265,6 +274,8 @@ export const useBoard = create<BoardState>()(
       presentStep: 0,
       loaded: false,
       error: null,
+      boardId: null,
+      canEdit: false,
       past: [],
       future: [],
       isReplaying: false,
@@ -280,12 +291,15 @@ export const useBoard = create<BoardState>()(
       select: (id) => set({ selectedId: id }),
       setOrdering: (on) => set({ ordering: on }),
       setPresentStep: (step) => set({ presentStep: step }),
+      setCanEdit: (canEdit) => set({ canEdit }),
 
-      load: async () => {
+      load: async (boardId) => {
+        set({ boardId, loaded: false });
         try {
+          const filter = pb.filter("board = {:board}", { board: boardId });
           const [cardRecords, connRecords] = await Promise.all([
-            cardsApi.getFullList({ sort: "z" }),
-            connectionsApi.getFullList(),
+            cardsApi.getFullList({ filter, sort: "z" }),
+            connectionsApi.getFullList({ filter }),
           ]);
           const cards: Record<string, Card> = {};
           for (const r of cardRecords) cards[r.id] = recordToCard(r);
@@ -303,6 +317,7 @@ export const useBoard = create<BoardState>()(
         const card: Card = {
           id: newId(),
           ...defaultsFor(type, { x: at.x + step, y: at.y + step }, sizeOverride),
+          board: get().boardId ?? "",
         };
         set((s) => ({ cards: { ...s.cards, [card.id]: card }, selectedId: card.id }));
         try {
@@ -450,6 +465,7 @@ export const useBoard = create<BoardState>()(
           toCard,
           color: "#b81d13",
           label: "",
+          board: get().boardId ?? "",
         };
         await insertConnectionRaw(conn);
         record({
