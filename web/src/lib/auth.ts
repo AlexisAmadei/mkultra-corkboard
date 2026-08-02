@@ -49,7 +49,12 @@ export async function changePassword(
   passwordConfirm: string,
 ) {
   const id = pb.authStore.record!.id;
+  const email = pb.authStore.record!.email;
   await usersApi.update(id, { oldPassword, password, passwordConfirm });
+  // Changing the password invalidates every previously issued auth token,
+  // so the token we're still holding is now dead. Re-authenticate to pick
+  // up a fresh one instead of leaving the client silently unauthenticated.
+  await loginWithPassword(email, password);
 }
 
 export function logout() {
