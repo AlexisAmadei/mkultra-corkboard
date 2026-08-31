@@ -9,7 +9,7 @@ ARCHIVE="$BACKUP_DIR/pb_data-$TIMESTAMP.tar.gz"
 
 mkdir -p "$BACKUP_DIR"
 
-if docker compose ps pocketbase 2>/dev/null | grep -q "Up"; then
+if docker compose ps corkboard-pb 2>/dev/null | grep -q "Up"; then
   echo "Backing up from running Docker volume..."
   MSYS_NO_PATHCONV=1 docker run --rm \
     -v mkultra2_pb_data:/pb_data:ro \

@@ -1,5 +1,5 @@
 services:
-  pocketbase:
+  corkboard-pb:
     build:
       context: ./pb
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
       dockerfile: web/Dockerfile
     restart: unless-stopped
     depends_on:
-      pocketbase:
+      corkboard-pb:
         condition: service_healthy
     expose:
       - "80"
