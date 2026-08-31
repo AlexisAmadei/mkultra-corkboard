@@ -5,6 +5,7 @@ import { boardsApi, recordToBoard } from "../lib/pocketbase";
 import { logout } from "../lib/auth";
 import { exportBoard, importBoard } from "../lib/boardExport";
 import { useAuth } from "../store/authStore";
+import { track } from "../lib/openpanel";
 import type { Board } from "../types";
 import { BoardSettings } from "../components/BoardSettings";
 import { AccountSettings } from "../components/AccountSettings";
@@ -102,7 +103,12 @@ export function BoardsPage() {
   const createBoard = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !user) return;
-    await boardsApi.create({ name: newName.trim(), owner: user.id, visibility: "private" });
+    const created = await boardsApi.create({
+      name: newName.trim(),
+      owner: user.id,
+      visibility: "private",
+    });
+    track("board_create", { boardId: created.id });
     setNewName("");
     setCreating(false);
     reload();
@@ -116,6 +122,7 @@ export function BoardsPage() {
     setImporting(true);
     try {
       const boardId = await importBoard(file, user.id);
+      track("board_import", { boardId });
       reload();
       navigate(`/board/${boardId}`);
     } catch (err) {
@@ -150,7 +157,13 @@ export function BoardsPage() {
           <User size={14} />
           Account
         </button>
-        <button type="button" onClick={() => void logout()}>
+        <button
+          type="button"
+          onClick={() => {
+            track("logout");
+            logout();
+          }}
+        >
           <LogOut size={14} />
           Log out
         </button>
@@ -214,7 +227,10 @@ export function BoardsPage() {
               key={b.id}
               board={b}
               mine
-              onExport={() => void exportBoard(b.id)}
+              onExport={() => {
+                track("board_export", { boardId: b.id });
+                void exportBoard(b.id);
+              }}
               onSettings={() => setSettingsFor(b)}
             />
           ))}

@@ -8,6 +8,7 @@ import {
   recordToCard,
   recordToConnection,
 } from "../lib/pocketbase";
+import { track } from "../lib/openpanel";
 
 const DEFAULT_SIZE: Record<CardType, { width: number; height: number }> = {
   text: { width: 240, height: 170 },
@@ -281,13 +282,15 @@ export const useBoard = create<BoardState>()(
       isReplaying: false,
 
       setTransform: (t) => set({ transform: t }),
-      setMode: (mode) =>
+      setMode: (mode) => {
+        if (mode === "present" && get().mode !== "present") track("present_start");
         set({
           mode,
           selectedId: mode === "edit" ? get().selectedId : null,
           ordering: false,
           presentStep: mode === "present" ? 0 : get().presentStep,
-        }),
+        });
+      },
       select: (id) => set({ selectedId: id }),
       setOrdering: (on) => set({ ordering: on }),
       setPresentStep: (step) => set({ presentStep: step }),
@@ -326,6 +329,7 @@ export const useBoard = create<BoardState>()(
           set({ error: (e as Error).message });
           return null;
         }
+        track("card_create", { type, boardId: card.board });
         record({
           label: "add card",
           undo: () => deleteCardRaw(card.id),
@@ -429,6 +433,7 @@ export const useBoard = create<BoardState>()(
           .filter((c) => c.fromCard === id || c.toCard === id)
           .map((c) => ({ ...c }));
         await deleteCardRaw(id);
+        track("card_delete", { type: card.type, boardId: card.board });
         record({
           label: "delete card",
           undo: async () => {
@@ -468,6 +473,7 @@ export const useBoard = create<BoardState>()(
           board: get().boardId ?? "",
         };
         await insertConnectionRaw(conn);
+        track("connection_create", { boardId: conn.board });
         record({
           label: "connect",
           undo: () => deleteConnectionRaw(conn.id),
@@ -480,6 +486,7 @@ export const useBoard = create<BoardState>()(
         if (!conn) return;
         const snap = { ...conn };
         await deleteConnectionRaw(id);
+        track("connection_delete", { boardId: snap.board });
         record({
           label: "disconnect",
           undo: () => insertConnectionRaw(snap),

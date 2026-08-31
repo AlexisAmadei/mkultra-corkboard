@@ -9,6 +9,7 @@ import {
   type OAuthProvider,
 } from "../lib/auth";
 import { useAuth } from "../store/authStore";
+import { track } from "../lib/openpanel";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -48,8 +49,10 @@ export function LoginPage() {
     try {
       if (mode === "login") {
         await loginWithPassword(email, password);
+        track("login", { method: "password" });
       } else {
         await signup(email, password, name);
+        track("signup", { method: "password" });
       }
     } catch (err) {
       setError((err as Error).message);
@@ -135,7 +138,11 @@ export function LoginPage() {
                   type="button"
                   variant="outline"
                   className="w-full"
-                  onClick={() => void loginWithOAuth2(p.name)}
+                  onClick={() =>
+                    void loginWithOAuth2(p.name).then(() =>
+                      track("login", { method: p.name }),
+                    )
+                  }
                 >
                   Continue with {p.displayName}
                 </Button>

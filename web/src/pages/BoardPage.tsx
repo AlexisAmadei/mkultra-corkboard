@@ -5,6 +5,7 @@ import { useSync } from "../hooks/useSync";
 import { boardsApi, collaboratorsApi, pb, recordToBoard } from "../lib/pocketbase";
 import { useAuth } from "../store/authStore";
 import { useBoard } from "../store/boardStore";
+import { track } from "../lib/openpanel";
 import type { Board as BoardModel } from "../types";
 
 type Access = "loading" | "denied" | "granted";
@@ -44,6 +45,7 @@ export function BoardPage() {
         setBoard(b);
         useBoard.getState().setCanEdit(canEdit);
         setAccess("granted");
+        track("board_open", { boardId: b.id, visibility: b.visibility, canEdit });
       } catch {
         if (!cancelled) setAccess("denied");
       }
