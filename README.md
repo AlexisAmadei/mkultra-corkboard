@@ -5,7 +5,9 @@ photos, redacted documents) connected by red yarn strings. Pan freely, zoom with
 the wheel, double-click any card to focus it. A **View / Edit** toggle switches
 between a read-only board and full authoring.
 
-![board](docs/board.png)
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-07-40 Interactive Corkboard" src="https://github.com/user-attachments/assets/c2e9cee5-9815-4524-b912-c08e35a39d98" />
+
+
 
 ## Stack
 
@@ -78,3 +80,11 @@ web/           Vite React app
   `cards` and `connections`, with cascade-delete so removing a card removes its
   strings server-side).
 - `pb/pb_data/` and the `pb/pocketbase` binary are gitignored.
+
+## Gallery
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-07-50 Interactive Corkboard" src="https://github.com/user-attachments/assets/8175e5f1-dd79-4a97-a501-e42fa7c10333" />
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-07-40 Interactive Corkboard" src="https://github.com/user-attachments/assets/47a5408f-5ad5-499a-b30a-0689f988299e" />
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-07-29 Interactive Corkboard" src="https://github.com/user-attachments/assets/51b5c076-78f8-4b3b-86bf-b6f952f8f385" />
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-06-42 Interactive Corkboard" src="https://github.com/user-attachments/assets/6c250c42-7dce-40b8-b359-4bd5d4acff37" />
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-06-30 Interactive Corkboard" src="https://github.com/user-attachments/assets/e95dc45f-bbd3-4c0c-81a6-59b6817591f6" />
+<img width="2908" height="1814" alt="Screenshot 2026-10-25 at 15-06-06 Interactive Corkboard" src="https://github.com/user-attachments/assets/e3ebbfd9-a85f-443e-a4c1-3999e1aceb1b" />
